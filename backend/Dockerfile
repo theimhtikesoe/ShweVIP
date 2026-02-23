@@ -17,4 +17,4 @@ RUN npm install --omit=dev
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/src/db/schema.sql ./dist/db/schema.sql
 EXPOSE 4000
-CMD ["node", "dist/server.js"]
+CMD ["sh", "-c", "node dist/db/migrate.js && node dist/db/seedAdmin.js && node dist/server.js"]

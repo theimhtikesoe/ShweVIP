@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { env } from "../config/env";
 import { UserRole } from "../types/domain";
 
@@ -22,7 +22,7 @@ export function signAccessToken(userId: number, role: UserRole): string {
   };
 
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.ACCESS_TOKEN_TTL
+    expiresIn: env.ACCESS_TOKEN_TTL as SignOptions["expiresIn"]
   });
 }
 
@@ -34,7 +34,7 @@ export function signRefreshToken(userId: number, sessionId: string): string {
   };
 
   return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.REFRESH_TOKEN_TTL
+    expiresIn: env.REFRESH_TOKEN_TTL as SignOptions["expiresIn"]
   });
 }
 

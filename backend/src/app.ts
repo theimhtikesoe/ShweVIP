@@ -1,4 +1,4 @@
-import Fastify, { FastifyInstance } from "fastify";
+import Fastify, { FastifyError, FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 import sensible from "@fastify/sensible";
 import { Queue } from "bullmq";
@@ -47,8 +47,9 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
       });
     }
 
-    if (error.statusCode) {
-      return reply.code(error.statusCode).send({ message: error.message });
+    const fastifyError = error as FastifyError;
+    if (typeof fastifyError.statusCode === "number") {
+      return reply.code(fastifyError.statusCode).send({ message: fastifyError.message });
     }
 
     app.log.error(error);

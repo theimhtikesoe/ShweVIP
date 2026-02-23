@@ -5,7 +5,8 @@ dotenv.config();
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  BACKEND_PORT: z.coerce.number().default(4000),
+  BACKEND_PORT: z.coerce.number().optional(),
+  PORT: z.coerce.number().optional(),
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().min(1),
   JWT_ACCESS_SECRET: z.string().min(16),
@@ -21,4 +22,9 @@ const envSchema = z.object({
     .transform((value) => value !== "false")
 });
 
-export const env = envSchema.parse(process.env);
+const parsedEnv = envSchema.parse(process.env);
+
+export const env = {
+  ...parsedEnv,
+  BACKEND_PORT: parsedEnv.BACKEND_PORT ?? parsedEnv.PORT ?? 4000
+};
