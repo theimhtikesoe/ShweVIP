@@ -3,7 +3,7 @@ import { z } from "zod";
 import { authenticate, requireRole } from "../services/authGuard";
 
 const createServerSchema = z.object({
-  ip: z.string().regex(/^\\d{1,3}(\\.\\d{1,3}){3}$/, "Expected IPv4 address"),
+  ip: z.string().regex(/^\d{1,3}(\.\d{1,3}){3}$/, "Expected IPv4 address"),
   region: z.string().min(2),
   status: z.enum(["online", "offline", "maintenance"]).default("online"),
   failoverEnabled: z.boolean().default(false)
@@ -13,7 +13,7 @@ const updateServerSchema = z
   .object({
     ip: z
       .string()
-      .regex(/^\\d{1,3}(\\.\\d{1,3}){3}$/, "Expected IPv4 address")
+      .regex(/^\d{1,3}(\.\d{1,3}){3}$/, "Expected IPv4 address")
       .optional(),
     region: z.string().min(2).optional(),
     status: z.enum(["online", "offline", "maintenance"]).optional(),
