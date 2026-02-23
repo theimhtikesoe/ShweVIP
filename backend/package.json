@@ -25,6 +25,7 @@
     "jsonwebtoken": "^9.0.2",
     "node-ssh": "^13.2.1",
     "pg": "^8.13.1",
+    "tweetnacl": "^1.0.3",
     "zod": "^3.24.1"
   },
   "devDependencies": {
