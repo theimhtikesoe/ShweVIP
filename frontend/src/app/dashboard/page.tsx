@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 import { AppShell } from "@/components/AppShell";
 import { apiRequest } from "@/lib/api";
 import { useAuthGuard } from "@/lib/useAuthGuard";
@@ -32,6 +33,7 @@ export default function DashboardPage() {
   const [state, setState] = useState<DashboardResponse | null>(null);
   const [configText, setConfigText] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [downloadingQr, setDownloadingQr] = useState(false);
 
   const load = async () => {
     setError(null);
@@ -52,6 +54,42 @@ export default function DashboardPage() {
       setConfigText(config);
     } catch (requestError) {
       setError((requestError as Error).message);
+    }
+  };
+
+  const downloadQr = async () => {
+    if (!user) {
+      return;
+    }
+
+    setError(null);
+    setDownloadingQr(true);
+
+    try {
+      const config = await apiRequest<string>("/users/me/config");
+      setConfigText(config);
+
+      const dataUrl = await QRCode.toDataURL(config, {
+        errorCorrectionLevel: "M",
+        margin: 2,
+        width: 1024
+      });
+
+      const safeUserName = user.email
+        .split("@")[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9-_]/g, "-");
+
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `wireguard-${safeUserName || `user-${user.id}`}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (requestError) {
+      setError((requestError as Error).message);
+    } finally {
+      setDownloadingQr(false);
     }
   };
 
@@ -95,9 +133,14 @@ export default function DashboardPage() {
               ? `Generated ${new Date(state.config.generatedAt).toLocaleString()}`
               : "No config has been generated yet."}
           </p>
-          <button className="btn-primary mt-4 w-full" onClick={downloadConfig}>
-            Download Config
-          </button>
+          <div className="mt-4 space-y-2">
+            <button className="btn-primary w-full" onClick={downloadConfig}>
+              Download Config
+            </button>
+            <button className="btn-secondary w-full" onClick={downloadQr} disabled={downloadingQr}>
+              {downloadingQr ? "Generating QR..." : "Download QR"}
+            </button>
+          </div>
         </article>
       </section>
 
